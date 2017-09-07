@@ -1,5 +1,7 @@
 Parking logger code
 
+[![screenshot](https://github.com/panovvv/parking-logger/raw/master/media/screenshot.png?raw=true)]
+
 This can be used as an example of recording a video file from a camera with some overlayed data (sensors, etc.) using OpenCV for Java, or as an example of using TinyB library to connect to BLE devices in Java code.
 
 Project is written using IntelliJ IDEA Community Edition.

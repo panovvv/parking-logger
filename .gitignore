@@ -6,3 +6,5 @@ hs_err_pid*
 # Compiled project
 /target
 /out
+
+*.avi
