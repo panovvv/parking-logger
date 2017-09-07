@@ -1,6 +1,6 @@
 Parking logger code
 
-[![screenshot](https://github.com/panovvv/parking-logger/raw/master/media/screenshot.png?raw=true)]
+![screenshot](https://github.com/panovvv/parking-logger/raw/master/media/screenshot.png?raw=true)
 
 This can be used as an example of recording a video file from a camera with some overlayed data (sensors, etc.) using OpenCV for Java, or as an example of using TinyB library to connect to BLE devices in Java code.
 
@@ -39,6 +39,8 @@ Linux dependencies:
 
 - Open this project in IntelliJ IDEA, adjusting library paths and native libraty paths if necessary (F4 - project properties)
 
-- Run **Main** class. Connect your camera and BLE adapter. You're ready t start logging! 
+- Run **Main** class. Connect your camera and BLE adapter. You're ready to start logging! 
+
+[Video log sample, GIF 30ish Mb](https://github.com/panovvv/parking-logger/raw/master/media/out.gif?raw=true)
 
 

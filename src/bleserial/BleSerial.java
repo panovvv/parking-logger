@@ -42,23 +42,25 @@ public class BleSerial {
     private static BluetoothGattService getService(BluetoothDevice device, String UUID) {
         LOGGER.log(Level.INFO, "Services exposed by device:");
         BluetoothGattService targetService = null;
-        List<BluetoothGattService> bluetoothServices;
+        List<BluetoothGattService> services;
         do {
-            bluetoothServices = device.getServices();
-            if (Objects.nonNull(bluetoothServices)) {
-                for (BluetoothGattService service : bluetoothServices) {
+            services = device.getServices();
+            if (Objects.nonNull(services) && !services.isEmpty()) {
+                for (BluetoothGattService service : services) {
                     LOGGER.log(Level.INFO, "UUID: " + service.getUUID());
                     if (service.getUUID().equals(UUID))
                         targetService = service;
                 }
+            } else {
+                LOGGER.log(Level.INFO, "No services found!");
             }
             try {
-                Thread.sleep(4000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-        } while (bluetoothServices.isEmpty());
+        } while (Objects.isNull(services));
 
         return targetService;
     }

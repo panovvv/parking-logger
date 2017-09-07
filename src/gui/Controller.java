@@ -79,6 +79,7 @@ public class Controller {
     private BleSerial bleSerial;
     private boolean bleSerialConnected = false;
     private BleDiscoveryService bleDiscoveryService;
+    private boolean scanning = false;
 
     // Webcam-related variables
     private VideoCapture videoCapture = new VideoCapture();
@@ -111,16 +112,32 @@ public class Controller {
     }
 
     @FXML
-    public void connectBleButtonClicked(ActionEvent actionEvent) throws BleSerialException {
+    public void connectBleButtonClicked(ActionEvent actionEvent) {
         if (bleSerialConnected) {
             // disconnect
             bleSerial.disconnect();
             setBleSerialConnectedUi(false);
+            if (scanning) {
+                asyncBluetoothDiscovery(false);
+            }
         } else {
             // connect
             BluetoothDeviceWrapper selected = bleDropdown.getSelectionModel().getSelectedItem();
             if (Objects.nonNull(selected)) {
-                makeBleSerial(selected.getDevice(), !selected.getDevice().getConnected());
+                try {
+                    makeBleSerial(selected.getDevice());
+                    refreshBleCheckbox.setSelected(false);
+                    setBleSerialConnectedUi(true);
+                } catch (BleSerialException e) {
+                    if (selected.getDevice().getConnected()) {
+                        selected.getDevice().disconnect();
+                    }
+                    if (scanning) {
+                        asyncBluetoothDiscovery(false);
+                        refreshBleCheckbox.setSelected(false);
+                    }
+                    setBleSerialConnectedUi(false);
+                }
             }
         }
     }
@@ -187,7 +204,11 @@ public class Controller {
 
     @FXML
     public void refreshBleCheckboxChecked(ActionEvent actionEvent) {
-        if (refreshBleCheckbox.isSelected()) {
+        asyncBluetoothDiscovery(refreshBleCheckbox.isSelected());
+    }
+
+    private void asyncBluetoothDiscovery(boolean switchOn) {
+        if (switchOn) {
             bleDiscoveryService = new BleDiscoveryService();
             bleDiscoveryService.setPeriod(Duration.seconds(3.0));
             bleDiscoveryService.setOnSucceeded(t ->
@@ -196,6 +217,7 @@ public class Controller {
         } else {
             bleDiscoveryService.cancel();
         }
+        scanning = switchOn;
     }
 
     public void fillBleDeviceDropdown(ObservableList<BluetoothDeviceWrapper> deviceList) {
@@ -207,15 +229,14 @@ public class Controller {
         }
     }
 
-    private void makeBleSerial(BluetoothDevice device, boolean doConnect) throws BleSerialException {
+    private void makeBleSerial(BluetoothDevice device) throws BleSerialException {
         bleSerial = new BleSerial(device,
                 UART_SERVICE_UUID, UART_CHARACTERISTIC_UUID, UART_CHARACTERISTIC_LENGTH);
-        if (doConnect) {
+        if (!device.getConnected()) {
             bleSerial.connect();
         } else {
             bleSerial.initialize();
         }
-        setBleSerialConnectedUi(true);
         bleSerial.enableConnectedNotifications(this::setBleSerialConnectedUi);
     }
 
@@ -251,7 +272,6 @@ public class Controller {
         bleStatusLabel.setText(String.format("BLE:%s connected", bleSerialConnected ? "" : " not"));
         connectBleButton.setText(bleSerialConnected ? "Disconnect" : "Connect");
         bleDropdown.setDisable(bleSerialConnected);
-        refreshBleCheckbox.setSelected(false);
         bleDiscoveryService.cancel();
         refreshBleCheckbox.setDisable(bleSerialConnected);
     }
