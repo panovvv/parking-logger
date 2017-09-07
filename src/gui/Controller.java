@@ -103,7 +103,7 @@ public class Controller {
             // start logging
             if (cameraConnected && bleSerialConnected) {
                 setLoggingUi(true);
-                logger = new VideoLogger(videoCapture, cameraSettings);
+                logger = new VideoLogger(cameraSettings);
                 logger.startLogging();
                 bleSerial.enableValueNotifications(s -> logger.pushNewEntry(s));
             }

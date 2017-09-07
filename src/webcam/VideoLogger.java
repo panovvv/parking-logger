@@ -5,7 +5,6 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.VideoWriter;
 
 import java.time.LocalDateTime;
@@ -21,15 +20,15 @@ public class VideoLogger {
 
     private final static Logger LOGGER = Logger.getLogger(VideoLogger.class.getName());
 
-    private static final String DATETIME_FORMAT = "yyyy-MM-dd_HH.mm";
+    private static final String FILENAME_DATETIME_FORMAT = "yyyy-MM-dd_HH.mm";
     private static final Scalar TEXT_COLOR = new Scalar(0, 0, 0);
     private static final Scalar TEXT_BG_COLOR = new Scalar(255, 255, 255);
     private static final double FONT_SCALE = 1.5;
     private static final int BOX_WIDTH = 400;
-    private static final int BOX_HEIGHT = 100;
+    private static final int BOX_HEIGHT = 130;
     private static final int TEXT_THICKNESS = 2;
+    private static final DateTimeFormatter VIDEO_DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private VideoCapture videoCapture;
     private CameraSettingsProvider cameraSettings;
     private VideoWriter videoWriter = new VideoWriter();
 
@@ -42,14 +41,13 @@ public class VideoLogger {
     private int magnetY;
     private int magnetZ;
 
-    public VideoLogger(VideoCapture videoCapture, CameraSettingsProvider cameraSettings) {
-        this.videoCapture = videoCapture;
+    public VideoLogger(CameraSettingsProvider cameraSettings) {
         this.cameraSettings = cameraSettings;
     }
 
     public void startLogging() {
         String videoFilePath = String.format("%s.avi",
-                DateTimeFormatter.ofPattern(DATETIME_FORMAT).format(LocalDateTime.now()));
+                DateTimeFormatter.ofPattern(FILENAME_DATETIME_FORMAT).format(LocalDateTime.now()));
         LOGGER.log(Level.INFO, String.format("Output path: %s", videoFilePath));
 
         LOGGER.log(Level.INFO, String.format("Resolution: %s", cameraSettings.getMaxResolution()));
@@ -71,26 +69,34 @@ public class VideoLogger {
         if (gotBeginning) {
             if (s.contains("e")) {
                 lastEntryBuilder.append(s.substring(0, s.indexOf('e') + 1));
-
-                lastEntry = lastEntryBuilder.toString();
-                batteryCharge = getIntBetweenChars('/');
-                pirState = getBoolBetweenChars('#');
-                magnetX = getIntBetweenChars('x');
-                magnetY = getIntBetweenChars('y');
-                magnetZ = getIntBetweenChars('z');
-
-                gotBeginning = false;
-                lastEntryBuilder.setLength(0);
-                lastEntryBuilder.append(s.substring(s.indexOf('e') + 1));
+                parseOneMessage(s);
             } else {
                 lastEntryBuilder.append(s);
             }
         } else {
             if (s.contains("b")) {
                 gotBeginning = true;
-                lastEntryBuilder.append(s.substring(s.indexOf('b')));
+                if (s.contains("e")) {
+                    parseOneMessage(s);
+                } else {
+                    lastEntryBuilder.append(s.substring(s.indexOf('b')));
+                }
+
             }
         }
+    }
+
+    private void parseOneMessage(String s) {
+        lastEntry = lastEntryBuilder.toString();
+        batteryCharge = getIntBetweenChars('/');
+        pirState = getBoolBetweenChars('#');
+        magnetX = getIntBetweenChars('x');
+        magnetY = getIntBetweenChars('y');
+        magnetZ = getIntBetweenChars('z');
+
+        gotBeginning = false;
+        lastEntryBuilder.setLength(0);
+        lastEntryBuilder.append(s.substring(s.indexOf('e') + 1));
     }
 
     private Integer getIntBetweenChars(char c) {
@@ -112,17 +118,21 @@ public class VideoLogger {
                     new Point(BOX_WIDTH, BOX_HEIGHT),
                     new Point(0, BOX_HEIGHT))), TEXT_BG_COLOR);
             Imgproc.putText(frame,
-                    String.format("Battery:%d%%", batteryCharge),
+                    String.format("%s", LocalDateTime.now().format(VIDEO_DATETIME_FORMAT)),
                     new Point(10, 20),
                     FONT_HERSHEY_PLAIN, FONT_SCALE, TEXT_COLOR, TEXT_THICKNESS);
             Imgproc.putText(frame,
-                    String.format("PIR: %s", pirState ? "ON" : "OFF"),
+                    String.format("Battery:%d%%", batteryCharge),
                     new Point(10, 50),
+                    FONT_HERSHEY_PLAIN, FONT_SCALE, TEXT_COLOR, TEXT_THICKNESS);
+            Imgproc.putText(frame,
+                    String.format("PIR: %s", pirState ? "ON" : "OFF"),
+                    new Point(10, 80),
                     FONT_HERSHEY_PLAIN, FONT_SCALE, TEXT_COLOR, TEXT_THICKNESS);
             Imgproc.putText(frame,
                     String.format("Magn: (%6s,%6s,%6s)", Integer.toString(magnetX),
                             Integer.toString(magnetY), Integer.toString(magnetZ)),
-                    new Point(10, 80),
+                    new Point(10, 110),
                     FONT_HERSHEY_PLAIN, FONT_SCALE, TEXT_COLOR, TEXT_THICKNESS);
         }
         videoWriter.write(frame);
