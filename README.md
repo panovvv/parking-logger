@@ -41,6 +41,7 @@ Linux dependencies:
 
 - Run **Main** class. Connect your camera and BLE adapter. You're ready to start logging! 
 
+Videolog sample (more in /media):
 ![Video log sample, GIF 30ish Mb](https://github.com/panovvv/parking-logger/raw/master/media/out.gif)
 
 
