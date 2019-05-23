@@ -35,9 +35,9 @@ Linux dependencies:
 
   ```
 
-- Clone [TinyB](https://github.com/intel-iot-devkit/tinyb) and build it as described [here:](https://shortn0tes.blogspot.com/2017/08/uart-bridge-from-hm-10-to-pc-with-java.html)
+- Clone [TinyB](https://github.com/intel-iot-devkit/tinyb) and build it as described [here.](https://shortn0tes.blogspot.com/2017/08/uart-bridge-from-hm-10-to-pc-with-java.html)
 
-- Open this project in IntelliJ IDEA, adjusting library paths and native libraty paths if necessary (F4 - project properties)
+- Open this project in IntelliJ IDEA, adjusting library paths and native library paths if necessary (F4 - project properties)
 
 - Run **Main** class. Connect your camera and BLE adapter. You're ready to start logging! 
 

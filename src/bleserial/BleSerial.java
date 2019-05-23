@@ -11,9 +11,6 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Created by vadim on 8/4/17.
- */
 public class BleSerial {
 
     private final static Logger LOGGER = Logger.getLogger(BleSerial.class.getName());

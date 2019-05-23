@@ -1,8 +1,5 @@
 package bleserial;
 
-/**
- * Created by vadim on 8/4/17.
- */
 public class BleSerialException extends Exception {
 
     public BleSerialException() {

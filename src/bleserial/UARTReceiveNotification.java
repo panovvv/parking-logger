@@ -5,9 +5,6 @@ import tinyb.BluetoothNotification;
 import java.nio.CharBuffer;
 import java.util.Objects;
 
-/**
- * Created by vadim on 8/3/17.
- */
 public class UARTReceiveNotification implements BluetoothNotification<byte[]> {
 
     private CharBuffer inputBuffer;
